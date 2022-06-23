@@ -1,0 +1,5 @@
+.idea/
+__pycache__/
+qrcodes/
+latest_silero_models.yml
+test.py
