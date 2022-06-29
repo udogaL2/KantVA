@@ -1,6 +1,7 @@
 import config as config
-import parser
+import stt
 import tts
+import parser
 import os
 from fuzzywuzzy import fuzz
 import datetime
@@ -10,30 +11,14 @@ from random import choice
 
 def search_name(text: str):
     text = text.split()
-    try:
-        for name in config.VA_ALIAS:
+    for name in config.VA_ALIAS:
+        try:
             index = text.index(name)
             return ' '.join(text[index:])
-    except Exception:
-        return ''
+        except Exception:
+            pass
 
-
-def va_respond(voice: str):
-    if voice:
-        print(voice)
-        voice = search_name(voice)
-
-    if voice.startswith(config.VA_ALIAS):
-        filter_voice = filter_cmd(voice)
-        cmd = recognize_cmd(filter_voice)
-
-        print(filter_voice)
-
-        if cmd['percent'] < 39:
-            text, anim = choice(config.VA_ANS_LIST['error'])
-            tts.va_speak(text, anim)
-        else:
-            execute_cmd(cmd['cmd'])
+    return ''
 
 
 def filter_cmd(raw_voice: str):
@@ -97,3 +82,32 @@ def execute_cmd(cmd: str):
 
     elif cmd == 'gratitude':
         tts.va_speak('Всегда пожалуйста...', 'thx')
+
+
+def va_respond(voice: str):
+    if voice:
+        print(voice)
+        voice = search_name(voice)
+
+    if voice.startswith(config.VA_ALIAS):
+        filter_voice = filter_cmd(voice)
+        cmd = recognize_cmd(filter_voice)
+
+        print(filter_voice)
+
+        if cmd['percent'] < 39:
+            text, anim = choice(config.VA_ANS_LIST['error'])
+            tts.va_speak(text, anim)
+        else:
+            execute_cmd(cmd['cmd'])
+
+
+class KantVA:
+    def __init__(self, path_to_config: str):
+        config.load_config(path_to_config)
+        print(f"{config.VA_NAME} (v{config.VA_VER}) начал свою работу ...")
+
+        tts.va_speak(
+            "Привет! ... Меня зовут Имману+ил Кант. ... Приятно познакомиться. ... Когда захочешь обратиться ко мне,"
+            "то начни свою фразу моим именем или фамилией.", 'start')
+        stt.va_listen(va_respond)
