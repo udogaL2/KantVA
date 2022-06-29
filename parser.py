@@ -10,15 +10,12 @@ headers = {
 }
 session = requests.Session()
 
+with open('quotes.txt', 'r') as f:
+    quotes = f.read().strip().split('\n')
+    f.close()
+
 
 def get_quotes():
-    html = session.get('https://citatnica.ru/vyrazheniya/krylatye-vyrazheniya-immanuila-kanta-300-vyrazhenij',
-                       headers=headers)
-
-    bs = BS(html.text, 'html.parser')
-
-    quotes = [i.text.strip() for i in bs.find_all('div', class_='su-note-inner su-u-clearfix su-u-trim')]
-
     return choice(quotes)
 
 

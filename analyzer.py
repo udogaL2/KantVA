@@ -1,16 +1,28 @@
-import config
+import config as config
 import parser
 import tts
+import os
 from fuzzywuzzy import fuzz
 import datetime
 from num2t4ru import num2text
-from parser import get_quotes
 from random import choice
+
+
+def search_name(text: str):
+    text = text.split()
+    try:
+        for name in config.VA_ALIAS:
+            index = text.index(name)
+            return ' '.join(text[index:])
+    except Exception:
+        return ''
 
 
 def va_respond(voice: str):
     if voice:
         print(voice)
+        voice = search_name(voice)
+
     if voice.startswith(config.VA_ALIAS):
         filter_voice = filter_cmd(voice)
         cmd = recognize_cmd(filter_voice)
@@ -70,22 +82,18 @@ def execute_cmd(cmd: str):
         tts.va_speak(text, anim)
 
     elif cmd == 'quote':
-        quote = get_quotes()
+        quote = parser.get_quotes()
         tts.va_speak(quote, 'quotes')
 
     elif cmd == 'events':
         parser.generate_nearest_event()
-        tts.va_speak('Я знаю несколько вариантов, предлагаю рассмотреть вот этот.', 'event')
-        #
-        # вывести qrcode на экран
-        #
+        tts.va_speak('Я знаю несколько вариантов, предлагаю рассмотреть вот этот.', 'event',
+                     qr=os.path.abspath(os.curdir) + 'qrcodes\\qr_event.png')
 
     elif cmd == 'place':
         parser.generate_place()
-        tts.va_speak("Я знаю много знаменитых мест, ... вот одно из них.", "place")
-        #
-        # вывести qrcode на экран
-        #
+        tts.va_speak("Я знаю много знаменитых мест, ... вот одно из них.", "place",
+                     qr=os.path.abspath(os.curdir) + 'qrcodes\\qr_place.png')
 
     elif cmd == 'gratitude':
         tts.va_speak('Всегда пожалуйста...', 'thx')
